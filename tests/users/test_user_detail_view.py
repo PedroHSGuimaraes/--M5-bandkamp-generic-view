@@ -16,8 +16,8 @@ class UserDetailViewsTest(APITestCase):
         user_2_data = {
             "username": "lucira_buster_2",
             "email": "lucira_buster_2@kenziebuster.com",
-            "full_name": "Lucira",
-            "artistic_name": "Buster",
+            "first_name": "Lucira",
+            "last_name": "Buster",
             "password": "1234",
         }
 
@@ -33,7 +33,7 @@ class UserDetailViewsTest(APITestCase):
         response = self.client.get(self.BASE_URL, format="json")
 
         # STATUS CODE
-        expected_status_code = status.HTTP_200_OK
+        expected_status_code = status.HTTP_401_UNAUTHORIZED
         resulted_status_code = response.status_code
         msg = (
             "Verifique se o status code retornado do GET sem token "
@@ -42,19 +42,35 @@ class UserDetailViewsTest(APITestCase):
         self.assertEqual(expected_status_code, resulted_status_code, msg)
 
         # RETORNO JSON
-        expected_data = {
-            "id": self.user_1.pk,
-            "username": self.user_1.username,
-            "email": self.user_1.email,
-            "full_name": self.user_1.full_name,
-            "artistic_name": self.user_1.artistic_name,
-        }
+        expected_data = {"detail": "Authentication credentials were not provided."}
         resulted_data = response.json()
         msg = (
-            "Verifique se os dados retornados do GET com token correto em "
+            "Verifique se os dados retornados do GET sem token "
             + f"em `{self.BASE_URL}` é {expected_data}"
         )
         self.assertDictEqual(expected_data, resulted_data, msg)
+
+    def test_retrieve_user_with_another_user_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token_2)
+        response = self.client.get(self.BASE_URL, format="json")
+
+        # STATUS CODE
+        expected_status_code = status.HTTP_403_FORBIDDEN
+        resulted_status_code = response.status_code
+        msg = (
+            "Verifique se o status code retornado do GET sem token correto "
+            + f"em `{self.BASE_URL}` é {expected_status_code}"
+        )
+        self.assertEqual(expected_status_code, resulted_status_code, msg)
+
+        expected_message = {
+            "detail": "You do not have permission to perform this action."
+        }
+        resulted_message = response.json()
+        msg = (
+            f"Verifique se a mensagem retornada do GET em {self.BASE_URL} está correta"
+        )
+        self.assertDictEqual(expected_message, resulted_message, msg)
 
     def test_retrieve_user_with_correct_user_token(self):
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token_1)
@@ -74,8 +90,9 @@ class UserDetailViewsTest(APITestCase):
             "id": self.user_1.pk,
             "username": self.user_1.username,
             "email": self.user_1.email,
-            "full_name": self.user_1.full_name,
-            "artistic_name": self.user_1.artistic_name,
+            "first_name": self.user_1.first_name,
+            "last_name": self.user_1.last_name,
+            "is_superuser": self.user_1.is_superuser,
         }
         resulted_data = response.json()
         msg = (
@@ -183,9 +200,9 @@ class UserDetailViewsTest(APITestCase):
         info_to_patch = {
             "username": "lucira_buster_5000",
             "email": "lucira_buster_5000@kenziebuster.com",
-            "full_name": "Lucira5000",
-            "artistic_name": "Buster5000",
-            "password": "lucira1234!@@@3",
+            "first_name": "Lucira5000",
+            "last_name": "Buster5000",
+            "password": "lucira1234!@@@3"
         }
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token_1)
         response = self.client.patch(self.BASE_URL, data=info_to_patch, format="json")
@@ -204,8 +221,9 @@ class UserDetailViewsTest(APITestCase):
             "id": self.user_1.pk,
             "username": info_to_patch["username"],
             "email": info_to_patch["email"],
-            "full_name": info_to_patch["full_name"],
-            "artistic_name": info_to_patch["artistic_name"],
+            "first_name": info_to_patch["first_name"],
+            "last_name": info_to_patch["last_name"],
+            "is_superuser": self.user_1.is_superuser,
         }
         resulted_data = response.json()
         msg = (
@@ -219,7 +237,4 @@ class UserDetailViewsTest(APITestCase):
             f"Verifique se a senha está sendo atualizada no {response.request['REQUEST_METHOD']} em "
             + f"em `{self.BASE_URL}`"
         )
-        import ipdb
-
-        # ipdb.set_trace()
         self.assertTrue(user.check_password(info_to_patch["password"]), msg)

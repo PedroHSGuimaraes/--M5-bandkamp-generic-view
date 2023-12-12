@@ -42,8 +42,8 @@ class UserLoginViewTest(APITestCase):
         register_data = {
             "username": "lucira_buster",
             "email": "lucira_buster@kenziebuster.com",
-            "full_name": "Lucira",
-            "artistic_name": "Buster",
+            "first_name": "Lucira",
+            "last_name": "Buster",
             "password": "1313",
         }
         User.objects.create_user(**register_data)

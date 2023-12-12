@@ -65,7 +65,6 @@ class AlbumViewTest(APITestCase):
                 "Verifique se o status code retornado do POST "
                 + f"em `{self.BASE_URL}` é {expected_status_code}"
             )
-
             self.assertEqual(expected_status_code, result_status_code, msg)
 
         # RETORNO JSON
@@ -85,7 +84,8 @@ class AlbumViewTest(APITestCase):
 
         # STATUS CODE
         with self.subTest():
-            user_data, token = create_user_with_token()
+            # ipdb.set_trace()
+            _, token = create_user_with_token()
             self.client.credentials(
                 HTTP_AUTHORIZATION="Bearer " + str(token.access_token)
             )
@@ -99,14 +99,7 @@ class AlbumViewTest(APITestCase):
             self.assertEqual(expected_status_code, result_status_code, msg)
 
         # RETORNO JSON
-        user_detail = {
-            "artistic_name": user_data.artistic_name,
-            "email": user_data.email,
-            "full_name": user_data.full_name,
-            "id": user_data.pk,
-            "username": user_data.username,
-        }
-        expected_data = {"id": 1, "user": user_detail, **album_data}
+        expected_data = {"id": 1, "user_id": 1, **album_data}
         resulted_data = response.json()
         msg = (
             "Verifique se as informações retornadas no POST "

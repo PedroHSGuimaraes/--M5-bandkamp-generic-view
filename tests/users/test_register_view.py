@@ -24,10 +24,10 @@ class UserRegistrationViewTest(APITestCase):
             "email",
             "username",
             "password",
-            "artistic_name",
+            "first_name",
+            "last_name",
         }
         returned_fields = set(resulted_data.keys())
-
         msg = "Verifique se todas as chaves obrigatórias são retornadas ao tentar criar um usuário sem dados"
         self.assertSetEqual(expected_fields, returned_fields, msg)
 
@@ -44,8 +44,8 @@ class UserRegistrationViewTest(APITestCase):
         user_data = {
             "username": "lucira_buster",
             "email": "lucira_buster@kenziebuster.com",
-            "full_name": "Lucira",
-            "artistic_name": "Buster",
+            "first_name": "Lucira",
+            "last_name": "Buster",
             "password": "1234",
         }
 
@@ -57,8 +57,9 @@ class UserRegistrationViewTest(APITestCase):
             "id": added_user.pk,
             "username": "lucira_buster",
             "email": "lucira_buster@kenziebuster.com",
-            "full_name": "Lucira",
-            "artistic_name": "Buster",
+            "first_name": "Lucira",
+            "last_name": "Buster",
+            "is_superuser": True,
         }
         resulted_data = response.json()
         msg = (
@@ -84,8 +85,8 @@ class UserRegistrationViewTest(APITestCase):
         user_data = {
             "username": "lucira",
             "email": "lucira@mail.com",
-            "full_name": "Lucira",
-            "artistic_name": "Buster",
+            "first_name": "Lucira",
+            "last_name": "Buster",
             "password": "1234",
         }
         # Populando o banco pré testagem
