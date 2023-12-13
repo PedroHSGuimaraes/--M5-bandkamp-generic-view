@@ -7,14 +7,13 @@ from .permissions import IsAccountOwner
 from rest_framework import generics
 
 
-class UserView(generics.ListCreateAPIView):
+class UserView(generics.CreateAPIView):
     serializer_class = UserSerializer
-    queryset = User.objects.all()
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAccountOwner]
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

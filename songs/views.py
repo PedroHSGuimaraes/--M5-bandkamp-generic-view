@@ -5,19 +5,18 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Song
 from rest_framework.pagination import PageNumberPagination
 from .serializers import SongSerializer
-from albums.models import Album
-import ipdb
 from rest_framework import generics
 
 
-class SongView(generics.ListCreateAPIView, PageNumberPagination):
+class SongView(generics.ListCreateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    serializer_class = SongSerializer
     queryset = Song.objects.all()
+    serializer_class = SongSerializer
+
+    def get_queryset(self):
+        return Song.objects.filter(album_id=self.kwargs["pk"])
 
     def perform_create(self, serializer):
-        album = get_object_or_404(Album, pk=self.request.parser_context['kwargs']['pk'])
-        
-        return serializer.save(album=album)
+        serializer.save(album_id=self.kwargs["pk"])
